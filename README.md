@@ -11,7 +11,7 @@ Msprime, pyslim, and pandas are required to run the Python scripts that parse th
 
 ## 5Mb_simulations
 
-This folder contains the 5Mb chunks that are being simulated. This outputs a CSV file which tracks population genetic statistics of interest over time.
+This folder contains the 5Mb chunks that were simulated. This outputs a CSV file which tracks population genetic statistics of interest over time. Those statistics are calculated within SLiM.
 
 ## human_chr1_simulations
 
