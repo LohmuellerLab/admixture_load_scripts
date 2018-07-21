@@ -25,8 +25,10 @@ The recombination map and exon definitions used for the simulations are found in
 
 Additional steps are required to go from tree sequences to useful data. Details on how to do this can be found in [SLiM Manual, Chapter 16](http://benhaller.com/slim/SLiM_Manual.pdf) and utilize the Python library [pyslim](https://github.com/tskit-dev/pyslim), for which the paper can be found [here](https://www.biorxiv.org/content/early/2018/06/07/248500 "Kelleher et al. bioRxiv") . 
 
+For parsing local ancestry into a genomic map of introgression, we use parseancestrytrees.py, which should output some csv file with the extension .ancestry. Then, we use blocklengthdistribution.py to parse out the blocks of ancestry.
+
 ## arabidopsis_selfing
 
-This folder contains simulation code for 29.1 Mb of Arabidopsis chromosome 1. This outputs VCF files from which we parse out the local ancestry proportions in the genome. We did not use tree sequence recording because it was prohibitively slow due to higher recombination rates, i.e. there were more trees to record.
+This folder contains simulation code for 29.1 Mb of Arabidopsis chromosome 1. This outputs VCF files from which we parse out the local ancestry proportions in the genome. We did not use tree sequence recording because it was prohibitively slow due to higher recombination rates, i.e. there were more trees to record. Instead, we used marker mutations to track introgressed ancestry.
 
 The recombination map and exon definitions used for the simulations are found in sim_seq_info.txt.
