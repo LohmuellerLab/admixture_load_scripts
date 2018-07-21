@@ -1,26 +1,23 @@
 #! /bin/bash
 
-#read -r -d '' fitnessblock << endmsg 
-#1:13000 fitness(m1) {
-#    h = 1/((1/0.987) * 39547 * mut.selectionCoeff)
-#    if (homozygous) {
-#        return ((1.0 + 0.5*mut.selectionCoeff)*(1.0 + 0.5*mut.selectionCoeff));
-#    } else {
-#        return (1.0 + mut.selectionCoeff * h);
-#    }
-#}
-#endmsg
-
 scalingfactor="5"
+h="0.5"
+r="1e-7"
+
+#demographic parameters before scaling
+#time in generations from 0. remember that 10N generations are used for burn-in
+# Nanc: size of ancestral population before divergence
+# Nsource: size of p1 from time 10N to 13N
+# Nrecipient1: size of p2 from time 10N to (12N-50)
+# NrecipientB: size of p2 from time (12N-50) to (12N)
+# Nrecipient2: size of p2 from time 12N to 13N
 Nanc="10000"
 Nsource="10000"
 Nrecipient1="10000"
 NrecipientB="10000"
 Nrecipient2="10000"
 
-h="0.5"
-r="1e-7"
-
+if [ ${h} = "0.5" ]; then
 read -r -d '' fitnessblock << endmsg 
 1:$( echo "130000 / ${scalingfactor}" | bc -l | xargs printf "%.0f" ) fitness(m1) {
     sadj = mut.selectionCoeff * mut.mutationType.dominanceCoeff;
@@ -31,6 +28,9 @@ read -r -d '' fitnessblock << endmsg
     }
 }
 endmsg
+else 
+    fitnessblock=""
+fi
 
 cat > slim_h${h}_r${r}_${scalingfactor}x.slim << EOM
 // use page 76 to randomly generate exons

@@ -1,30 +1,25 @@
 #! /bin/bash
 
-#read -r -d '' fitnessblock << endmsg 
-#1:13000 fitness(m1) {
-#    h = 1/((1/0.987) * 39547 * mut.selectionCoeff)
-#    if (homozygous) {
-#        return ((1.0 + 0.5*mut.selectionCoeff)*(1.0 + 0.5*mut.selectionCoeff));
-#    } else {
-#        return (1.0 + mut.selectionCoeff * h);
-#    }
-#}
-#endmsg
-
-#scaling factor should be 1, 2, 5, or 10
 scalingfactor="5"
+h="0.5"
+r="1e-7"
 
+#demographic parameters before scaling
+#time in generations from 0. remember that 10N generations are used for burn-in
+# Nanc: size of ancestral population before divergence
+# Nsource: size of p1 from time 10N to 13N
+# Nrecipient1: size of p2 from time 10N to (12N-50)
+# NrecipientB: size of p2 from time (12N-50) to (12N)
+# Nrecipient2: size of p2 from time 12N to 13N
 Nanc="10000"
 Nsource="10000"
 Nrecipient1="10000"
 NrecipientB="1000"
 Nrecipient2="10000"
 
-for h in 0.5; do
-mkdir h_${h}_model1; cd h_${h}_model1
-
+if [ ${h} = "0.5" ]; then
 read -r -d '' fitnessblock << endmsg 
-1:$( expr 130000 / ${scalingfactor} ) fitness(m1) {
+1:$( echo "130000 / ${scalingfactor}" | bc -l | xargs printf "%.0f" ) fitness(m1) {
     sadj = mut.selectionCoeff * mut.mutationType.dominanceCoeff;
     if (homozygous) {
         return ((1.0 + sadj)*(1.0 + sadj));
@@ -33,11 +28,11 @@ read -r -d '' fitnessblock << endmsg
     }
 }
 endmsg
+else 
+    fitnessblock=""
+fi
 
-for r in "1e-6" "1e-7" "1e-8" "1e-9"
-do
-
-cat > slim_h${h}_r${r}_model1_${scalingfactor}x.slim << EOM
+cat > slim_h${h}_r${r}_${scalingfactor}x.slim << EOM
 // use page 76 to randomly generate exons
 initialize() {
     initializeMutationRate(1.5e-8*${scalingfactor});
@@ -109,15 +104,15 @@ ${fitnessblock}
 1 early() {
     defineConstant("simnum", getSeed());
     setSeed(getSeed() + $RANDOM);
-    sim.addSubpop("p1",$( expr ${Nanc} / ${scalingfactor} ));
+    sim.addSubpop("p1", $( echo "${Nanc} / ${scalingfactor}" | bc -l | xargs printf "%.0f" ));
     // when set to "F" does not remove fixed variants
     // this isn't necessary because we're keeping track of all populations
     m2.convertToSubstitution = T;
 }
 
-$( expr 100000 / ${scalingfactor} ) early() { // after burn-in, split populations into two: p1 and p2
-    sim.addSubpopSplit("p2", $( expr ${Nrecipient1} / ${scalingfactor} ), p1);
-    p1.setSubpopulationSize($(expr ${Nsource} / ${scalingfactor} ));
+$( echo "100000 / ${scalingfactor}" | bc -l | xargs printf "%.0f" ) early() { // after burn-in, split populations into two: p1 and p2
+    sim.addSubpopSplit("p2", $( echo "${Nrecipient1} / ${scalingfactor}" | bc -l | xargs printf "%.0f" ), p1);
+    p1.setSubpopulationSize($( echo "${Nsource} / ${scalingfactor}" | bc -l | xargs printf "%.0f" ));
     
     // this also isnt necessary, but sets the migration rates to 0
 	p1.setMigrationRates(c(p2),c(0.0)); //migration rate INTO p1
@@ -150,25 +145,25 @@ $( expr 100000 / ${scalingfactor} ) early() { // after burn-in, split population
 	
     cat("#generation,FitnessLarge,FitnessSmall,p1Fraction,p1FractionWithin,p1FractionOutside,p2Fraction,p2FractionWithin,p2FractionOutside,p1MeanDel,p1MeanNeu,p1MeanMut,p1IndivDel,p1MeanHomNeu,p1MeanHomDel,p1load_s,p1load_w,p2MeanDel,p2MeanNeu,p2MeanMut,p2IndivDel,p2MeanHomNeu,p2MeanHomDel,p2load_s,p2load_w\n");}
 
-$( expr 119950 / ${scalingfactor} ) early() {
-    p2.setSubpopulationSize($(expr ${NrecipientB} / ${scalingfactor} ));
+$( echo "119950 / ${scalingfactor}" | bc -l | xargs printf "%.0f" ) early() {
+    p2.setSubpopulationSize($( echo "${NrecipientB} / ${scalingfactor}" | bc -l | xargs printf "%.0f" ));
 }
 
-$( expr 120000 / ${scalingfactor} ) early() {
+$( echo "120000 / ${scalingfactor}" | bc -l | xargs printf "%.0f" ) early() {
     p1.setMigrationRates(c(p2),c(0.00)); //migration rate INTO p1
     p2.setMigrationRates(c(p1),c(0.05)); //migration rate INTO p2
 }
 
-$( expr 120000 / ${scalingfactor} ) late() {
+$( echo "120000 / ${scalingfactor}" | bc -l | xargs printf "%.0f" ) late() {
     p1.setMigrationRates(c(p2),c(0.0)); //migration rate INTO p1
     p2.setMigrationRates(c(p1),c(0.0)); //migration rate INTO p2
-    p2.setSubpopulationSize($(expr ${Nrecipient2} / ${scalingfactor} ));
+    p2.setSubpopulationSize($( echo "${Nrecipient2} / ${scalingfactor}" | bc -l | xargs printf "%.0f" ));
 }
 
-$( expr 130000 / ${scalingfactor} ) { }
+$( echo "130000 / ${scalingfactor}" | bc -l | xargs printf "%.0f" ) { }
 
-$( expr 100000 / ${scalingfactor} ):$( expr 130000 / ${scalingfactor} ) late() {
-  if (sim.generation % $(expr 50 / ${scalingfactor}) == 0){
+$( echo "100000 / ${scalingfactor}" | bc -l | xargs printf "%.0f" ):$( echo "130000 / ${scalingfactor}" | bc -l | xargs printf "%.0f" ) late() {
+  if (sim.generation % $( echo "50 / ${scalingfactor}" | bc -l | xargs printf "%.0f" ) == 0){
     
     p1g = p1.genomes;
     p2g = p2.genomes;
@@ -326,8 +321,3 @@ $( expr 100000 / ${scalingfactor} ):$( expr 130000 / ${scalingfactor} ) late() {
 }
 
 EOM
-
-done
-
-cd ..
-done

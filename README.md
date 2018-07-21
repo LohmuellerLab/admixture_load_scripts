@@ -1,11 +1,13 @@
 # admixture_load_scripts
 Scripts for simulating the admixture models described in Kim et al. This is a brief overview. Please see the paper for specific details on what we did.
 
-These shell scripts generate SLiM simulation scripts (*.slim files) which can then be used to recreate the simulated datasets in our paper. Because I ran these scripts on our cluster and wanted to avoid issues with random number generation for job arrays, I used a job ID plus a random integer as the random number seed for each simulation replicate. The simulations are run with the following command:
+Instead of providing straight SLiM simulation scripts (*.slim files), we have provided shell scripts that can be used to generate SLiM simulation scripts for a variety of parameters. Those SLiM files can then be used to recreate the simulated datasets in our paper.
 
-slim -seed ${JOB_ID} slimscript.slim
+We have done this for two reasons: first, this makes it easier to change small bits of the simulations. Second, this made things easier to run on our cluster. To avoid issues with random number generation for job arrays, I used a job ID plus a random integer as the random number seed for each simulation replicate. Therefore, a simulation ID should be passed to SLiM when running these scripts:
 
-Most of these scripts can work with SLiM 2.x, but we recommend using SLiM 3.0 for full compatibility. Tree sequence recording allows us to accurately track ancestry and makes simulations much faster. In addition, all simulations are scaled to some factor which is defined in the simulation script files.
+slim -seed ${JOB_ID} <slimscript.slim>
+
+Most of these scripts can work with SLiM 2.x, but we recommend using SLiM 3.0 for compatibility with tree sequence recording. Tree sequence recording allows us to accurately track ancestry and made some simulations run faster. In addition, all simulations are scaled to some factor which is defined in the simulation script files.
 
 Msprime, pyslim, and pandas are required to run the Python scripts that parse the tree sequence output.
 
@@ -13,11 +15,15 @@ Msprime, pyslim, and pandas are required to run the Python scripts that parse th
 
 This folder contains the 5Mb chunks that were simulated. This outputs a CSV file which tracks population genetic statistics of interest over time. Those statistics are calculated within SLiM.
 
+p1 is the source population and p2 is the recipient population.
+
 ## human_chr1_simulations
 
 This folder contains simulation code for 100Mb of human chromosome 1. This outputs tree sequence files from which we parse out the local ancestry proportions in the genome.
 
 The recombination map and exon definitions used for the simulations are found in sim_seq_info.txt.
+
+Additional steps are required to go from tree sequences to useful data. Details on how to do this can be found in [SLiM Manual, Chapter 16](http://benhaller.com/slim/SLiM_Manual.pdf) and utilize the Python library [pyslim](https://github.com/tskit-dev/pyslim), for which the paper can be found [here](https://www.biorxiv.org/content/early/2018/06/07/248500 "Kelleher et al. bioRxiv") . 
 
 ## arabidopsis_selfing
 
