@@ -23,7 +23,7 @@ This folder contains simulation code for 100Mb of human chromosome 1. This outpu
 
 The recombination map and exon definitions used for the simulations are found in sim_seq_info.txt.
 
-Additional steps are required to go from tree sequences to useful data. Details on how to do this can be found in [SLiM Manual, Chapter 16](http://benhaller.com/slim/SLiM_Manual.pdf) and utilize the Python library [pyslim](https://github.com/tskit-dev/pyslim), for which the paper can be found [here](https://www.biorxiv.org/content/early/2018/06/07/248500 "Kelleher et al. bioRxiv") . 
+Additional steps are required to go from tree sequences to useful data. Details on how to do this can be found in [SLiM Manual, Chapter 16](http://benhaller.com/slim/SLiM_Manual.pdf) and utilize the Python library [pyslim](https://github.com/tskit-dev/pyslim) [(Kelleher et al., bioRxiv)](https://www.biorxiv.org/content/early/2018/06/07/248500) . 
 
 For parsing local ancestry into a genomic map of introgression, we use parseancestrytrees.py, which should output some csv file with the extension .ancestry. Then, we use blocklengthdistribution.py to parse out the blocks of ancestry.
 
