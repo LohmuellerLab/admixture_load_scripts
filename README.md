@@ -1,11 +1,19 @@
 # admixture_load_scripts
 Scripts for simulating the admixture models described in Kim et al. This is a brief overview. Please see the paper for specific details on what we did.
 
-Instead of providing straight SLiM simulation scripts (*.slim files), we have provided shell scripts that can be used to generate SLiM simulation scripts for a variety of parameters. Those SLiM files can then be used to recreate the simulated datasets in our paper.
+We have provided a variety of scripts that can be used to replicate our results, with slight modifications to make the scripts generally usable outside of our specific cluster computing environment. So, instead of providing straight SLiM simulation scripts (*.slim files), we provide shell scripts that can be easily manipulated to generate simulation scripts for a variety of parameter settings. We additionally include the scripts we used to parse and plot the output of simulation replicates.
 
-We have done this for two reasons: first, this makes it easier to change small bits of the simulations. Second, this made things easier to run on our cluster. To avoid issues with random number generation for job arrays, I used a job ID plus a random integer as the random number seed for each simulation replicate. Therefore, a simulation ID should be passed to SLiM when running these scripts:
+Note, we used a job ID and a hard-coded random number in each SLiM script to seed the random number generator in SLiM, to avoid issues with random number generation. Therefore, a simulation ID should be passed to SLiM when running these scripts:
 
+```
 slim -seed ${JOB_ID} <slimscript.slim>
+```
+
+This line ensures that within SLiM, the job ID is added to a random integer and therefore all runs are seeded differently:
+
+```
+setSeed(getSeed() + ${RANDOM});
+```
 
 Most of these scripts can work with SLiM 2.x, but we recommend using SLiM 3.0 for compatibility with tree sequence recording. Tree sequence recording allows us to accurately track ancestry and made some simulations run faster. In addition, all simulations are scaled to some factor which is defined in the simulation script files.
 

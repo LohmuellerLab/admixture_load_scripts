@@ -9,8 +9,10 @@ splittime="20000"
 
 scalingfactor="5"
 
-mkdir burnin_${model}
-cd burnin_${model}
+cwd=$( pwd )
+
+mkdir ${model}
+cd ${model}
 
 for h in "0.0" "0.5" "s"
 do
@@ -75,7 +77,7 @@ initialize() {
     //initializeGenomicElementType("g3", c(m3), c(1.0));	
     
     //read in exon and recomb info
-    info_lines = readFile("/u/home/b/bkim331/project-klohmueldata/bernard_data/admixture_simulations_fullsims/sim_seq_info.txt");
+    info_lines = readFile("${cwd}/sim_seq_info.txt");
     
     //recombination
     rec_ends = NULL;
@@ -151,7 +153,7 @@ $( echo "( ${Nanc} * 10 + ${splittime} + ${Nanc} ) / ${scalingfactor}" | bc -l |
 }
 
 $( echo "( ${Nanc} * 10 + ${splittime} + ${Nanc} ) / ${scalingfactor}" | bc -l | xargs printf "%.0f") late() {
-    sim.treeSeqOutput("/u/home/b/bkim331/project-klohmueldata/bernard_data/admixture_simulations_fullsims/burnin_${model}/h_${h}/h${h}_full_" + simnum + "_p1.trees");
+    sim.treeSeqOutput("${cwd}/${model}/h_${h}/h${h}_full_" + simnum + "_p1.trees");
 }
 
 EOM

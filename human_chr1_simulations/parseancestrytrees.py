@@ -1,19 +1,19 @@
 """
-usage: parseancestrytrees.py treefilename.trees
+usage: python parseancestrytrees.py treefilename.trees
 """
 
 import sys, msprime, pyslim
 import pandas, numpy, random
 #import matplotlib.pyplot
 
-def ancestry2(ts):
+def ancestry(ts):
     """
-    This function takes a tree sequence object and parses out local ancestry exactly.
-    It can do so because the populations of all nodes were recorded at a specific 
-    generation after the population split but before admixture. Thus, we just need to 
-    take the current-day nodes and see which ones track their ancestry back to those 
-    recorded nodes. Thanks to Peter Ralph and Ben Haller for help making this 
-    function run faster.
+    This function takes a tree sequence object and parses out local ancestry 
+    exactly. It can do so because the populations of all nodes were recorded at 
+    a specific generation after the population split but before admixture. Thus,  
+    we just need to take the current-day nodes and see which ones track their  
+    ancestry back to those recorded nodes. Thanks to Peter Ralph and Ben Haller  
+    for help figuring this out.
     """
     #sample size
     n=2000.
@@ -37,7 +37,7 @@ infilename = sys.argv[1]
 ts = pyslim.load(infilename, slim_format=True)
 
 #get vector that describes the % of ancestry derived from p1
-p1ancestry = ancestry2(ts)
+p1ancestry = ancestry(ts)
 
 #record positions
 starts=[]
