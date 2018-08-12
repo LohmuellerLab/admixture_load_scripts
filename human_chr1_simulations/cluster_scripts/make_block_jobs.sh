@@ -3,7 +3,7 @@
 for model in "0" "2" "4"; do
     for h in "0.0" "0.5" "s" ; do
 
-    cd /u/home/b/bkim331/project-klohmueldata/bernard_data/admixture_simulations_fullsims/burnin_model${model}/h_${h}
+    cd /u/home/b/bkim331/project-klohmueldata/bernard_data/admixture_simulations_fullsims/sims_model${model}/h_${h}
     cwd=$( pwd )
 
 cat << EOF > blockjob.sh

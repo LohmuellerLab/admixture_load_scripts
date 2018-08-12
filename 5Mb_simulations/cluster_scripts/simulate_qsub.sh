@@ -18,8 +18,8 @@ Nrecipient2="10000"
 
 cwd=$( pwd )
 
-mkdir burnin
-cd burnin
+mkdir sims
+cd sims
 
 mkdir ${model}
 cd ${model}
@@ -348,7 +348,7 @@ cat > submitjob.sh << EOM
 #$ -t 1-200:1
 . /u/local/Modules/default/init/modules.sh
 module load gcc/4.9.3
-cd ${cwd}/burnin/${model}/h_${h}
+cd ${cwd}/sims/${model}/h_${h}
 /u/home/b/bkim331/bin/slim -seed \${SGE_TASK_ID} slim_h${h}_r${r}_${scalingfactor}x.slim > slim_h${h}_r${r}_\${SGE_TASK_ID}.csv
 EOM
 

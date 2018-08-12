@@ -15,7 +15,7 @@ This line ensures that within SLiM, the job ID is added to a random integer and 
 setSeed(getSeed() + ${RANDOM});
 ```
 
-Most of these scripts can work with SLiM 2.x, but we recommend using SLiM 3.0 for compatibility with tree sequence recording. Tree sequence recording allows us to accurately track ancestry and made some simulations run faster. In addition, all simulations are scaled to some factor which is defined in the simulation script files.
+Most of these scripts can work with SLiM 2.x, but we recommend using SLiM 3.0 for compatibility with tree sequence recording. Tree sequence recording allows us to accurately track ancestry and made some simulations run faster. In addition, all simulations are scaled by some scaling factor which is defined in the simulation script files.
 
 Msprime, pyslim, and pandas are required to run the Python scripts that parse the tree sequence output.
 

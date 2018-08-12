@@ -2,7 +2,7 @@
 
 for type in "model0" "model1" "model2" "model3" "model4"; do
 
-    cd burnin/${type}
+    cd sims/${type}
     for h in 0.0 0.5; do
 
         cd h_${h}
