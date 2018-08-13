@@ -2,10 +2,11 @@
 
 model="model0"
 
-mkdir burnin_${model}
-cd burnin_${model}
+mkdir ${model}
+cd ${model}
 
-for h in "selfing"
+h="selfing"
+for selfingpercent in "0"  "25" "50" "75"
 do
 mkdir h_${h}; cd h_${h}
 s=1000
@@ -28,7 +29,7 @@ read -r -d '' fitnessblock << endmsg
 endmsg
 fi
 
-cat > slim_h${h}_full_split${s}.job << EOM
+cat > slim_h${h}_full_split${s}_self${selfingpercent}.slim << EOM
 // use page 76 to randomly generate exons
 initialize() {
     initializeMutationRate(0.7e-8*(2.31/3.31)*${scalingfactor}); // no synonymous, lowered mutation rate by factor 2.31/3.31
@@ -39,7 +40,7 @@ initialize() {
     // to convert from dadi to SLiM, E[s] = -shape*scale
     // scale up by a factor of ${scalingfactor}
     // E[s], shape
-    initializeMutationType("m1", ${h}, "g", -0.00048655*${scalingfactor}, 0.185);
+    initializeMutationType("m1", 0.5, "g", -0.00048655*${scalingfactor}, 0.185);
     // neutral
     // initializeMutationType("m2", ${h}, "f", 0.0);
     
@@ -108,7 +109,7 @@ ${fitnessblock}
     p2.setMigrationRates(c(p1),c(0.0)); //migration rate INTO p2
     
     // make p2 a partially selfing population
-    p2.setSelfingRate(0.75);
+    p2.setSelfingRate(0.${selfingpercent});
 }
 
 //add marker mutations every 1000 bp
@@ -131,33 +132,11 @@ $((10000 + ${s})) late() {
 }
 
 $((10000 + ${s} + 1000)) { 
-    p1.outputVCFSample(1000, replace=F, filePath="/u/home/b/bkim331/project-klohmueldata/bernard_data/admixture_simulations_arabidopsis/burnin_${model}/h_${h}/h${h}_full_" + simnum + "_p1.vcf");
-    p2.outputVCFSample(1000, replace=F, filePath="/u/home/b/bkim331/project-klohmueldata/bernard_data/admixture_simulations_arabidopsis/burnin_${model}/h_${h}/h${h}_full_" + simnum + "_p2.vcf");
+    p1.outputVCFSample(1000, replace=F, filePath="/u/home/b/bkim331/project-klohmueldata/bernard_data/admixture_simulations_arabidopsis/burnin_${model}/h_${h}/h${h}_self${selfingpercent}_" + simnum + "_p1.vcf");
+    p2.outputVCFSample(1000, replace=F, filePath="/u/home/b/bkim331/project-klohmueldata/bernard_data/admixture_simulations_arabidopsis/burnin_${model}/h_${h}/h${h}_self${selfingpercent}_" + simnum + "_p2.vcf");
 }
 
 EOM
-
-queue="highp,h_rt=100:00:00,h_data=32G"
-
-cat > submitjob.sh << EOM
-#! /bin/bash
-#$ -cwd
-#$ -A bkim331
-#$ -l ${queue}
-#$ -N slim_h${h}_full
-#$ -o slim_h${h}_full.output
-#$ -j y
-#$ -M bkim331@gmail.com
-#$ -m a
-#$ -t 1-100:1
-. /u/local/Modules/default/init/modules.sh
-module load gcc/4.9.3
-cd /u/home/b/bkim331/project-klohmueldata/bernard_data/admixture_simulations_arabidopsis/burnin_${model}/h_${h}
-burnseed=\${SGE_TASK_ID}
-/u/home/b/bkim331/project-klohmueldata/bernard_data/SLiM/bin/slim -seed \${burnseed} slim_h${h}_full_split${s}.job
-EOM
-
-qsub submitjob.sh
 
 cd ..
 done

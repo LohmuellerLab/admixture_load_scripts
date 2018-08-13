@@ -1,21 +1,16 @@
 #! /bin/bash
 
-model="model0"
+model="model4"
+cwd=$(pwd)
 
-mkdir burnin_${model}
-cd burnin_${model}
+mkdir ${model}
+cd ${model}
 
-h="selfing"
-for selfingpercent in "0"  "25" "50" "75"
-do
-mkdir h_${h}; cd h_${h}
+mkdir h_s; cd h_s
 s=1000
 
 scalingfactor=100
 
-if [ "${h}" == "0.0" ]
-    then fitnessblock=""
-    else 
 read -r -d '' fitnessblock << endmsg 
 1:13000 fitness(m1) {
     h = 1/((1/0.987) - 39547 * mut.selectionCoeff/${scalingfactor});
@@ -27,9 +22,8 @@ read -r -d '' fitnessblock << endmsg
     }
 }
 endmsg
-fi
 
-cat > slim_h${h}_full_split${s}_self${selfingpercent}.job << EOM
+cat > slim_h${h}_full_split${s}.slim << EOM
 // use page 76 to randomly generate exons
 initialize() {
     initializeMutationRate(0.7e-8*(2.31/3.31)*${scalingfactor}); // no synonymous, lowered mutation rate by factor 2.31/3.31
@@ -42,7 +36,7 @@ initialize() {
     // E[s], shape
     initializeMutationType("m1", 0.5, "g", -0.00048655*${scalingfactor}, 0.185);
     // neutral
-    // initializeMutationType("m2", ${h}, "f", 0.0);
+    // initializeMutationType("m2", 0.5, "f", 0.0);
     
     // p1 marker mutations
     initializeMutationType("m10", 0.5, "f", 0.0);
@@ -56,7 +50,7 @@ initialize() {
     //initializeGenomicElementType("g2", c(m2), c(1.0));
     
     //read in exon and recomb info
-    info_lines = readFile("/u/home/b/bkim331/project-klohmueldata/bernard_data/admixture_simulations_arabidopsis/sim_seq_info.txt");
+    info_lines = readFile("${cwd}/sim_seq_info.txt");
     
     //recombination
     rec_ends = NULL;
@@ -101,15 +95,12 @@ ${fitnessblock}
 }
 
 10000 early() { // after burn-in, split populations into two: p1 and p2
-    sim.addSubpopSplit("p2", 1000, p1);
+    sim.addSubpopSplit("p2", 100, p1);
     p1.setSubpopulationSize(1000);
     
     // this also isnt necessary, but sets the migration rates to 0
     p1.setMigrationRates(c(p2),c(0.0)); //migration rate INTO p1
     p2.setMigrationRates(c(p1),c(0.0)); //migration rate INTO p2
-    
-    // make p2 a partially selfing population
-    p2.setSelfingRate(0.${selfingpercent});
 }
 
 //add marker mutations every 1000 bp
@@ -120,7 +111,7 @@ $((10000 + ${s} - 1)) late() {
 }
 
 $((10000 + ${s})) early() {
-    p1.setMigrationRates(c(p2),c(0.05)); //migration rate INTO p1
+    p1.setMigrationRates(c(p2),c(0.00)); //migration rate INTO p1
     p2.setMigrationRates(c(p1),c(0.05)); //migration rate INTO p2
 }
 
@@ -132,36 +123,11 @@ $((10000 + ${s})) late() {
 }
 
 $((10000 + ${s} + 1000)) { 
-    p1.outputVCFSample(1000, replace=F, filePath="/u/home/b/bkim331/project-klohmueldata/bernard_data/admixture_simulations_arabidopsis/burnin_${model}/h_${h}/h${h}_self${selfingpercent}_" + simnum + "_p1.vcf");
-    p2.outputVCFSample(1000, replace=F, filePath="/u/home/b/bkim331/project-klohmueldata/bernard_data/admixture_simulations_arabidopsis/burnin_${model}/h_${h}/h${h}_self${selfingpercent}_" + simnum + "_p2.vcf");
+    p1.outputVCFSample(1000, replace=F, filePath="${cwd}/${model}/h_s/hs_full_" + simnum + "_p1.vcf");
+    p2.outputVCFSample(1000, replace=F, filePath="${cwd}/${model}/h_s/hs_full_" + simnum + "_p2.vcf");
 }
 
 EOM
 
-queue="highp,h_rt=100:00:00,h_data=32G"
-
-cat > submitjob.sh << EOM
-#! /bin/bash
-#$ -cwd
-#$ -A bkim331
-#$ -l ${queue}
-#$ -N self_${selfingpercent}
-#$ -o selfing_${selfingpercent}.output
-#$ -j y
-#$ -M bkim331@gmail.com
-#$ -m a
-#$ -t 1-100:1
-. /u/local/Modules/default/init/modules.sh
-module load gcc/4.9.3
-cd /u/home/b/bkim331/project-klohmueldata/bernard_data/admixture_simulations_arabidopsis/burnin_${model}/h_${h}
-burnseed=\${SGE_TASK_ID}
-/u/home/b/bkim331/project-klohmueldata/bernard_data/SLiM/bin/slim -seed \${burnseed} slim_h${h}_full_split${s}_self${selfingpercent}.job
-EOM
-
-qsub submitjob.sh
-
 cd ..
-done
-
-
 cd ..

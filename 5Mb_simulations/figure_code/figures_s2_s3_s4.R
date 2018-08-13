@@ -169,9 +169,6 @@ levels(df$h) <- c("paste(italic(h),'=0.0')","paste(italic(h),'=0.5')")
 df$sim <- factor(df$sim)
 levels(df$sim) <- c("'Model 0'", "'Model 1'", "'Model 2'", "'Model 3'", "'Model 4'")
 
-df <- df[df$gen > 19000,]
-df$gen = df$gen - (200000/scalingfactor)
-
-q <- ggplot(df, aes(colour=factor(r))) + facet_grid(sim~h, scales="free_y") + geom_line(aes(x=gen,y=stat_mean),linetype=1,alpha=0.75) + geom_vline(xintercept=20000,linetype=2,colour="grey",alpha=0.6) + scale_colour_discrete("recombination rate", labels=c(expression(10^"-9"),expression(10^"-8"),expression(10^"-7"),expression(10^"-6"))) + scale_fill_discrete("recombination rate") + scale_y_continuous(stattitle) + scale_x_continuous(xtitle, limits=c(0,30000)) + theme_bw(base_size=16) + theme(axis.title.y=element_text(angle=90,vjust=0.5))
+q <- ggplot(df, aes(colour=factor(r))) + facet_grid(sim~h, scales="free_y", labeller=label_parsed) + geom_line(aes(x=gen,y=stat_mean),linetype=1,alpha=0.75) + geom_vline(xintercept=20000,linetype=2,colour="grey",alpha=0.6) + scale_colour_discrete("recombination rate", labels=c(expression(10^"-9"),expression(10^"-8"),expression(10^"-7"),expression(10^"-6"))) + scale_fill_discrete("recombination rate") + scale_y_continuous(stattitle) + scale_x_continuous(xtitle, limits=c(0,30000)) + theme_bw(base_size=16) + theme(axis.title.y=element_text(angle=90,vjust=0.5))
 setwd('~/Dropbox/project_admixture_load/sims_final/')
 ggsave("figure_S4.pdf",q,width=10, height=7, units="in")
