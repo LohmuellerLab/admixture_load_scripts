@@ -16,6 +16,7 @@ def ancestry2(ts):
     function run faster.
     """
     #sample size
+    #note this should be 1500. for sex chromosome
     n=2000.
     #time at which population info was recorded
     #note that times can differ depending on when the tree sequences were recorded,
